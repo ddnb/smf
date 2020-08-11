@@ -1,0 +1,6 @@
+# docker
+.Dockerfile.swp
+docker/mysql/data/*
+docker/mysql/logs/*
+sql/*
+docker/log/*

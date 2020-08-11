@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+  php:
+    restart: always
+    container_name: ddnb-smf-php
+    image: ddnb/php:latest
+    working_dir: /code
+    volumes:
+      - ./:/code
+      - $PWD/docker/php/conf/php.ini:/usr/local/etc/php/php.ini
+      - $PWD/docker/php/conf/php-fpm.d/www.conf:/usr/local/etc/php-fpm.d/www.conf
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+
+  mysql:
+    restart: always
+    container_name: ddnb-smf-mysql
+    hostname: mysql
+    image: mysql:5.7.20
+    restart: always
+    working_dir: /code
+    volumes:
+      - "./:/code"
+      - $PWD/docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+      - $PWD/docker/mysql/initdb:/docker-entrypoint-initdb.d
+      - $PWD/docker/mysql/data:/var/lib/mysql
+      - $PWD/docker/log/mysql:/var/log/mysql/
+    ports:
+      - 33307:3306
+    environment: 
+      MYSQL_DATABASE: ddnb_smf
+      MYSQL_USER: ddnb
+      MYSQL_PASSWORD: ddnbPassword
+    env_file:
+      - .env
+
+  nginx:
+    container_name: ddnb-smf-nginx
+    image: nginx:latest
+    ports:
+      - "38087:38087"
+    volumes:
+      - ./:/code
+      - ./site.conf:/etc/nginx/conf.d/site.conf
+    depends_on:
+      - php
