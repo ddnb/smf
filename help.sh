@@ -88,6 +88,26 @@ run_init() {
 	esac
 }
 
+run_db() {
+	case $2 in
+		reset|truncate)
+			readonly DROP_DB="mysqladmin -uddnb -pddnbPassword drop ddnb_smf"
+			readonly CREATE_DB="mysqladmin -uddnb -pddnbPassword create ddnb_smf"
+			docker-compose exec mysql /bin/bash -c "$DROP_DB"
+			docker-compose exec mysql /bin/bash -c "$CREATE_DB"
+		;;
+		restore)
+			readonly RESTORE_DB="mysql -uddnb -pddnbPassword ddnb_smf < /code/sql/init.sql"
+			docker-compose exec mysql /bin/bash -c "$RESTORE_DB"
+		;;
+		dump)
+			readonly DUMP_DB="mysqldump -uddnb -pddnbPassword ddnb_smf > /code/sql/`date +%Y%m%d`_smf.sql"
+			docker-compose exec mysql /bin/bash -c "$DUMP_DB"
+		;;
+		*|help) echo "Help";;
+	esac
+}
+
 case $1 in
 	open) run_open ${1} ${2};;
 	init) run_init ${2};;
@@ -95,8 +115,9 @@ case $1 in
 	start|up) start ;;
 	stop|down) stop ;;
 	restart|reboot) restart ;;
-	status|ps) run_status ${2:-help} ${3} ${4} ${5} ;;
+	status|ps) run_status ${1:-help} ${2} ${3} ${4} ${5} ;;
 	logs) logs ${2:-all} ;;
 	ssh) dockerssh ${2:-php} ;;
+	db) run_db ${1:-help} ${2} ${3} ${4} ${5} ;;
 	*) helps ;;
 esac

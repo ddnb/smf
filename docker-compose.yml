@@ -22,6 +22,7 @@ services:
     image: mysql:5.7.20
     restart: always
     working_dir: /code
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - "./:/code"
       - $PWD/docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf

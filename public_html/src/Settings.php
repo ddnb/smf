@@ -55,9 +55,9 @@ if (!file_exists($sourcedir) && file_exists($boarddir . '/Sources'))
 if (!file_exists($cachedir) && file_exists($boarddir . '/cache'))
 	$cachedir = $boarddir . '/cache';
 
-$image_proxy_secret = '92c37b41becef1e159d7';
+$image_proxy_secret = 'e559cb5fa163c53cfa34';
 $image_proxy_maxsize = '5190';
 $image_proxy_enabled = '0';
-$auth_secret = 'e8514aa601bcfb7c7cce11dd74c69cd3753a20b010df14d4934467221c53356f';
+$auth_secret = 'a1fca1a2295fad294357d1a520c54a635503fcb8e061c7f7b7981ffef95afb43';
 $db_character_set = 'utf8';
 ?>
