@@ -7,3 +7,6 @@ docker/log/*
 
 # smf
 public_html/src/cache/*
+
+# node
+node_modules
