@@ -1,0 +1,104 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/code
+    docker:
+      - image: ddnb/php:latest
+        environment:
+          ENV: local
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_DATABASE: ddnb_smf
+          MYSQL_USER: ddnb
+          MYSQL_PASSWORD: ddnbPassword
+      - image: mysql:5.7.17
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_USER: root
+          MYSQL_PASSWORD: ddnbPassword
+    
+    steps:
+      - checkout
+      - run: pwd;ls;php -v;
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./
+
+      - restore_cache:
+          keys:
+            - node-v1-{{ checksum "package.json" }}
+            - node-v1-
+      
+      - run:
+          name: Yarn dependencies
+          command: |
+            pwd;ls;whoami;date
+            npm -v
+            node -v
+            yarn install
+            yarn --version
+      
+      - save_cache:
+          key: node-v1-{{ checksum "package.json" }}
+          paths:
+            - node_modules
+
+  # tests
+  test:
+    working_directory: ~/code
+    docker:
+      - image: ddnb/php:latest
+        environment:
+          ENV: local
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_DATABASE: ddnb_smf
+          MYSQL_USER: ddnb
+          MYSQL_PASSWORD: ddnbPassword
+      - image: mysql:5.7.17
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_USER: root
+          MYSQL_PASSWORD: ""
+    steps:
+      - run: 
+          name: Before attach workspace
+          command: |
+            pwd;ls;php -v;
+
+      - attach_workspace:
+          at: .
+      
+      - run: 
+          name: After attach workspace
+          command: |
+            pwd;ls;php -v;mysql --version
+
+      - run:
+          name: Waiting for Mysql to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z 127.0.0.1 3306 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Mysql && exit 1
+      
+      - run: mysql -h 127.0.0.1 -u root -e "create database ddnb_smf;"
+
+      # TODO
+      # e2e test
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build

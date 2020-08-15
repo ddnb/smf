@@ -1,0 +1,11 @@
+{
+  "name": "ddnb-smf",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ddnb/smf.git",
+  "author": "developers@diendannhatban.info",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^5.2.1"
+  }
+}
